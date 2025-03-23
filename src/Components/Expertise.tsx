@@ -16,23 +16,30 @@ const Expertise: React.FC = () => {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <section className="py-16 text-center bg-white">
-      <h2 className="text-3xl font-bold text-green-900 mb-6">Area of Expertise</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-6">
+    <section className="min-h-screen w-full py-16 text-center bg-white">
+      {/* Heading */}
+      <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-900 mb-8">
+        Area of Expertise
+      </h2>
+
+      {/* Expertise Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-8 lg:px-16">
         {expertiseAreas.map((item, index) => (
           <button
             key={index}
-            className={`p-4 rounded-lg shadow-md transition-all duration-300 
-              ${selected === item.name ? "bg-green-800 text-black" : "bg-green-300 text-green-900"}
-              hover:bg-green-700 hover:text-black`}
+            className={`p-6 rounded-lg shadow-md transition-all duration-300 text-lg font-semibold
+              ${selected === item.name ? "bg-green-800 text-white" : "bg-green-300 text-green-900"}
+              hover:bg-green-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-800 focus:ring-offset-2`}
             onClick={() => setSelected(selected === item.name ? null : item.name)}
           >
             {item.name}
           </button>
         ))}
       </div>
+
+      {/* Selected Description */}
       {selected && (
-        <div className="mt-6 bg-gray-100 p-4 text-green-900 text-lg rounded-md max-w-2xl mx-auto">
+        <div className="mt-8 bg-gray-100 p-6 text-green-900 text-lg rounded-md max-w-2xl mx-auto">
           <p>{expertiseAreas.find((item) => item.name === selected)?.description}</p>
         </div>
       )}
