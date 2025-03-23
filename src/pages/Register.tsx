@@ -28,7 +28,7 @@ const Register: React.FC = () => {
     try {
       // Send registration data to the backend
       const response = await fetch(
-        "http://localhost:8000/api/register",
+        " http://localhost:8000/api/register",
         {
           method: "POST",
           headers: {
