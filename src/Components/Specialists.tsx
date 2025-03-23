@@ -6,10 +6,10 @@ import specialist3 from "../assets/images/Doc 3.jpg";
 import specialist4 from "../assets/images/Doc 4.webp";
 
 const specialists = [
-  { id: 1, name: "Dr. Rachel Porter", experience: "10+ Years", image: specialist1, specialty: "Psychiatry" },
-  { id: 2, name: "Dr. Ray Lawson", experience: "8+ Years", image: specialist2, specialty: "Therapy" },
-  { id: 3, name: "Dr. Dorothy Brien", experience: "5+ Years", image: specialist3, specialty: "Mental Health" },
-  { id: 4, name: "Dr. Jane Traversa", experience: "7+ Years", image: specialist4, specialty: "Counseling" },
+  { id: 1, name: "Dr. Rachel Wanagari", experience: "10+ Years", image: specialist1, specialty: "Psychiatry" },
+  { id: 2, name: "Dr. Ray Kiprono", experience: "8+ Years", image: specialist2, specialty: "Therapy" },
+  { id: 3, name: "Dr. Dorothy Achieng", experience: "5+ Years", image: specialist3, specialty: "Mental Health" },
+  { id: 4, name: "Dr. Jane Simiyu", experience: "7+ Years", image: specialist4, specialty: "Counseling" },
 ];
 
 const Specialists: React.FC = () => {
