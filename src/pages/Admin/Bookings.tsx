@@ -24,14 +24,14 @@ const Bookings = () => {
 
   // Fetch Bookings from Backend
   const fetchBookings = async () => {
-    const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/bookings");
+    const response = await fetch("http://localhost:8000/api/bookings");
     const data = await response.json();
     setBookings(data);
   };
 
   // Create a New Booking
   const handleCreate = async () => {
-    await fetch("https://ai-mentalhealthplatform.onrender.com/api/bookings", {
+    await fetch("http://localhost:8000/api/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newBooking),
@@ -42,7 +42,7 @@ const Bookings = () => {
 
   // Delete a Booking
   const handleDelete = async (id: number) => {
-    await fetch(`https://ai-mentalhealthplatform.onrender.com/api/bookings/${id}`, { method: "DELETE" });
+    await fetch(`http://localhost:8000/api/bookings/${id}`, { method: "DELETE" });
     fetchBookings();
   };
 
@@ -52,36 +52,67 @@ const Bookings = () => {
 
       {/* Create Booking Form */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <input
-          type="number"
-          placeholder="User ID"
-          className="border p-2 w-full sm:w-auto"
-          value={newBooking.user_id}
-          onChange={(e) => setNewBooking({ ...newBooking, user_id: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Therapist ID"
-          className="border p-2 w-full sm:w-auto"
-          value={newBooking.therapist_id}
-          onChange={(e) => setNewBooking({ ...newBooking, therapist_id: e.target.value })}
-        />
-        <input
-          type="date"
-          className="border p-2 w-full sm:w-auto"
-          value={newBooking.session_date}
-          onChange={(e) => setNewBooking({ ...newBooking, session_date: e.target.value })}
-        />
-        <select
-          className="border p-2 w-full sm:w-auto"
-          value={newBooking.booking_status}
-          onChange={(e) => setNewBooking({ ...newBooking, booking_status: e.target.value })}
+        <div className="flex flex-col w-full sm:w-auto">
+          <label htmlFor="user-id" className="text-sm font-medium text-gray-700 mb-1">
+            User ID
+          </label>
+          <input
+            id="user-id"
+            type="number"
+            placeholder="Enter User ID"
+            className="border p-2 w-full sm:w-auto"
+            value={newBooking.user_id}
+            onChange={(e) => setNewBooking({ ...newBooking, user_id: e.target.value })}
+          />
+        </div>
+
+        <div className="flex flex-col w-full sm:w-auto">
+          <label htmlFor="therapist-id" className="text-sm font-medium text-gray-700 mb-1">
+            Therapist ID
+          </label>
+          <input
+            id="therapist-id"
+            type="number"
+            placeholder="Enter Therapist ID"
+            className="border p-2 w-full sm:w-auto"
+            value={newBooking.therapist_id}
+            onChange={(e) => setNewBooking({ ...newBooking, therapist_id: e.target.value })}
+          />
+        </div>
+
+        <div className="flex flex-col w-full sm:w-auto">
+          <label htmlFor="session-date" className="text-sm font-medium text-gray-700 mb-1">
+            Session Date
+          </label>
+          <input
+            id="session-date"
+            type="date"
+            className="border p-2 w-full sm:w-auto"
+            value={newBooking.session_date}
+            onChange={(e) => setNewBooking({ ...newBooking, session_date: e.target.value })}
+          />
+        </div>
+
+        <div className="flex flex-col w-full sm:w-auto">
+          <label htmlFor="booking-status" className="text-sm font-medium text-gray-700 mb-1">
+            Booking Status
+          </label>
+          <select
+            id="booking-status"
+            className="border p-2 w-full sm:w-auto"
+            value={newBooking.booking_status}
+            onChange={(e) => setNewBooking({ ...newBooking, booking_status: e.target.value })}
+          >
+            <option value="Booked">Booked</option>
+            <option value="Completed">Completed</option>
+            <option value="Canceled">Canceled</option>
+          </select>
+        </div>
+
+        <button
+          onClick={handleCreate}
+          className="bg-green-600 text-white px-4 py-2 w-full sm:w-auto mt-6 sm:mt-0"
         >
-          <option value="Booked">Booked</option>
-          <option value="Completed">Completed</option>
-          <option value="Canceled">Canceled</option>
-        </select>
-        <button onClick={handleCreate} className="bg-green-600 text-white px-4 py-2 w-full sm:w-auto">
           Add Booking
         </button>
       </div>
@@ -118,7 +149,10 @@ const Bookings = () => {
                   {booking.booking_status}
                 </td>
                 <td className="p-2">
-                  <button onClick={() => handleDelete(booking.id)} className="bg-red-600 text-white px-4 py-1">
+                  <button
+                    onClick={() => handleDelete(booking.id)}
+                    className="bg-red-600 text-white px-4 py-1"
+                  >
                     Delete
                   </button>
                 </td>

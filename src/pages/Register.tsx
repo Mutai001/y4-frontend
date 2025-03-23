@@ -28,7 +28,7 @@ const Register: React.FC = () => {
     try {
       // Send registration data to the backend
       const response = await fetch(
-        "https://ai-mentalhealthplatform.onrender.com/api/register",
+        "http://localhost:8000/api/register",
         {
           method: "POST",
           headers: {
