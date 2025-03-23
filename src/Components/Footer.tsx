@@ -71,11 +71,11 @@ const Footer: React.FC = () => {
       {/* Contact Info */}
       <div className="flex justify-center items-center space-x-2 text-sm mb-6">
         <FaPhone className="text-green-300" />
-        <span>0798 765 432</span>
+        <span>+254798 765 432</span>
       </div>
 
       {/* Copyright */}
-      <p className="text-sm">© 2024 Mindful. All Rights Reserved.</p>
+      <p className="text-sm">© 2025 Mindful. All Rights Reserved.</p>
     </footer>
   );
 };
