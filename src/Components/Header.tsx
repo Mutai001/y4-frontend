@@ -7,7 +7,7 @@ const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="bg-gradient-to-r from-green-900 to-green-900 text-white p-4 flex justify-between items-center shadow-lg">
+    <header className="bg-gradient-to-r from-green-900 to-green-600 text-white p-4 flex justify-between items-center shadow-lg">
       {/* Logo and Name */}
       <Link to="/" className="flex items-center space-x-2">
         <img

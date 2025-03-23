@@ -16,23 +16,37 @@ const Specialists: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 bg-green-50 text-center">
-      <h2 className="text-3xl font-bold text-green-900 mb-8">Get Treatment From Our Specialists</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-6">
+    <section className="min-h-screen w-full py-16 bg-green-50 text-center">
+      {/* Heading */}
+      <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-green-900 mb-12">
+        Get Treatment From Our Specialists
+      </h2>
+
+      {/* Specialists Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-4 sm:px-8 lg:px-16">
         {specialists.map((specialist) => (
           <div
             key={specialist.id}
-            className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 text-center"
+            className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105 text-center"
           >
+            {/* Specialist Image */}
             <img
               src={specialist.image}
               alt={specialist.name}
-              className="w-28 h-28 mx-auto rounded-full border-4 border-green-200 mb-4"
+              className="w-32 h-32 mx-auto rounded-full border-4 border-green-200 mb-6"
             />
-            <h3 className="text-lg font-semibold text-green-900">{specialist.name}</h3>
-            <p className="text-sm text-gray-600">{specialist.specialty} - {specialist.experience}</p>
+
+            {/* Specialist Name */}
+            <h3 className="text-xl font-semibold text-green-900 mb-2">{specialist.name}</h3>
+
+            {/* Specialist Details */}
+            <p className="text-sm text-gray-600 mb-4">
+              {specialist.specialty} - {specialist.experience}
+            </p>
+
+            {/* Book Doctor Button */}
             <button
-              className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300"
+              className="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-green-800 focus:ring-offset-2"
               onClick={() => navigate(`/register`)}
             >
               Book Doctor
