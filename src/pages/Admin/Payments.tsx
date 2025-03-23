@@ -30,14 +30,14 @@ const Payments = () => {
 
   // Fetch Payments from Backend
   const fetchPayments = async () => {
-    const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/payments/create-payment-intent");
+    const response = await fetch("http://localhost:8000/api/mpesa/transactions");
     const data = await response.json();
     setPayments(data);
   };
 
   // Create a New Payment
   const handleCreate = async () => {
-    await fetch("https://ai-mentalhealthplatform.onrender.com/api/payments/create-payment-intent", {
+    await fetch("http://localhost:8000/api/mpesa/initiate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newPayment),
@@ -48,7 +48,7 @@ const Payments = () => {
 
   // Delete a Payment
   const handleDelete = async (id: number) => {
-    await fetch(`https://ai-mentalhealthplatform.onrender.com/api/payments/create-payment-intent/${id}`, { method: "DELETE" });
+    await fetch(`http://localhost:8000/api/mpesa/transactions/${id}`, { method: "DELETE" });
     fetchPayments();
   };
 
@@ -58,17 +58,84 @@ const Payments = () => {
 
       {/* Create Payment Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <input type="number" placeholder="User ID" className="border p-2 w-full" value={newPayment.userId} onChange={(e) => setNewPayment({ ...newPayment, userId: e.target.value })} />
-        <input type="number" placeholder="Session ID" className="border p-2 w-full" value={newPayment.sessionId} onChange={(e) => setNewPayment({ ...newPayment, sessionId: e.target.value })} />
-        <input type="number" placeholder="Amount" className="border p-2 w-full" value={newPayment.amount} onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })} />
-        <input type="date" className="border p-2 w-full" value={newPayment.paymentDate} onChange={(e) => setNewPayment({ ...newPayment, paymentDate: e.target.value })} />
-        <input type="text" placeholder="Stripe Payment ID" className="border p-2 w-full" value={newPayment.stripePaymentId} onChange={(e) => setNewPayment({ ...newPayment, stripePaymentId: e.target.value })} />
-        <select className="border p-2 w-full" value={newPayment.paymentStatus} onChange={(e) => setNewPayment({ ...newPayment, paymentStatus: e.target.value })}>
-          <option value="complete">Complete</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-        <button onClick={handleCreate} className="bg-green-600 text-white px-4 py-2 w-full">Add Payment</button>
+        <input
+          type="number"
+          placeholder="User ID"
+          className="border p-2 w-full"
+          value={newPayment.userId}
+          onChange={(e) => setNewPayment({ ...newPayment, userId: e.target.value })}
+        />
+        <input
+          type="number"
+          placeholder="Session ID"
+          className="border p-2 w-full"
+          value={newPayment.sessionId}
+          onChange={(e) => setNewPayment({ ...newPayment, sessionId: e.target.value })}
+        />
+        <input
+          type="number"
+          placeholder="Amount"
+          className="border p-2 w-full"
+          value={newPayment.amount}
+          onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+        />
+        <input
+          type="date"
+          className="border p-2 w-full"
+          value={newPayment.paymentDate}
+          onChange={(e) => setNewPayment({ ...newPayment, paymentDate: e.target.value })}
+          title="Payment Date"
+        />
+        <input
+          type="text"
+          placeholder="Stripe Payment ID"
+          className="border p-2 w-full"
+          value={newPayment.stripePaymentId}
+          onChange={(e) => setNewPayment({ ...newPayment, stripePaymentId: e.target.value })}
+        />
+
+        {/* Payment Status Dropdown */}
+        <div className="flex flex-col">
+          <label htmlFor="payment-status" className="text-sm font-medium text-gray-700 mb-1">
+            Payment Status
+          </label>
+          <select
+            id="payment-status"
+            className="border p-2 w-full"
+            value={newPayment.paymentStatus}
+            onChange={(e) => setNewPayment({ ...newPayment, paymentStatus: e.target.value })}
+            aria-label="Select payment status"
+          >
+            <option value="complete">Complete</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+
+        {/* Currency Dropdown */}
+        <div className="flex flex-col">
+          <label htmlFor="currency" className="text-sm font-medium text-gray-700 mb-1">
+            Currency
+          </label>
+          <select
+            id="currency"
+            className="border p-2 w-full"
+            value={newPayment.currency}
+            onChange={(e) => setNewPayment({ ...newPayment, currency: e.target.value })}
+            aria-label="Select currency"
+          >
+            <option value="usd">USD</option>
+            <option value="kes">KES</option>
+            <option value="eur">EUR</option>
+          </select>
+        </div>
+
+        <button
+          onClick={handleCreate}
+          className="bg-green-600 text-white px-4 py-2 w-full"
+        >
+          Add Payment
+        </button>
       </div>
 
       {/* Table */}
@@ -101,7 +168,12 @@ const Payments = () => {
                 <td className="p-2 border-r">{payment.paymentDate}</td>
                 <td className="p-2 border-r">{payment.stripePaymentId}</td>
                 <td className="p-2">
-                  <button onClick={() => handleDelete(payment.id)} className="bg-red-600 text-white px-4 py-1">Delete</button>
+                  <button
+                    onClick={() => handleDelete(payment.id)}
+                    className="bg-red-600 text-white px-4 py-1"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

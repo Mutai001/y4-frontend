@@ -34,7 +34,7 @@ const Users = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/users");
+      const response = await fetch("http://localhost:8000/api/users");
       if (!response.ok) throw new Error("Failed to fetch users");
       const data = await response.json();
       setUsers(data);
@@ -62,7 +62,7 @@ const Users = () => {
     };
 
     try {
-      const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/users", {
+      const response = await fetch("http://localhost:8000/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userToCreate),
@@ -93,7 +93,7 @@ const Users = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      const response = await fetch(`https://ai-mentalhealthplatform.onrender.com/api/users/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/users/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete user");
@@ -110,7 +110,7 @@ const Users = () => {
   const handleUpdate = async () => {
     if (!editingUser) return;
     try {
-      const response = await fetch(`https://ai-mentalhealthplatform.onrender.com/api/users/${editingUser.id}`, {
+      const response = await fetch(`http://localhost:8000/api/users/${editingUser.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingUser),
@@ -168,7 +168,9 @@ const Users = () => {
           value={newUser.password}
           onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
         />
+        <label htmlFor="userRole" className="sr-only">Role</label>
         <select
+          id="userRole"
           className="border p-2 w-full sm:w-auto"
           value={newUser.role}
           onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
@@ -207,19 +209,20 @@ const Users = () => {
                     <>
                       <td className="p-2">{user.id}</td>
                       <td className="p-2">
-                        <input type="text" value={editingUser.full_name} onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })} />
+                        <input type="text" placeholder="Full Name" value={editingUser.full_name} onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })} />
                       </td>
                       <td className="p-2">
-                        <input type="email" value={editingUser.email} onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} />
+                        <input type="email" placeholder="Email" value={editingUser.email} onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} />
                       </td>
                       <td className="p-2">
-                        <input type="text" value={editingUser.contact_phone} onChange={(e) => setEditingUser({ ...editingUser, contact_phone: e.target.value })} />
+                        <input type="text" placeholder="Phone" value={editingUser.contact_phone} onChange={(e) => setEditingUser({ ...editingUser, contact_phone: e.target.value })} />
                       </td>
                       <td className="p-2">
-                        <input type="text" value={editingUser.address} onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })} />
+                        <input type="text" placeholder="Address" value={editingUser.address} onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })} />
                       </td>
                       <td className="p-2">
-                        <select value={editingUser.role} onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}>
+                        <label htmlFor={`editUserRole-${user.id}`} className="sr-only">Role</label>
+                        <select id={`editUserRole-${user.id}`} value={editingUser.role} onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}>
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                           <option value="therapist">Therapist</option>
