@@ -11,6 +11,8 @@ interface Booking {
 
 const Bookings = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [newBooking, setNewBooking] = useState({
     user_id: "",
     therapist_id: "",
@@ -24,26 +26,53 @@ const Bookings = () => {
 
   // Fetch Bookings from Backend
   const fetchBookings = async () => {
-    const response = await fetch("http://localhost:8000/api/bookings");
-    const data = await response.json();
-    setBookings(data);
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:8000/api/bookings");
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setBookings(data);
+      } else {
+        setBookings([]);
+      }
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+      setError("Failed to load bookings.");
+      setBookings([]);
+    }
+    setLoading(false);
   };
 
   // Create a New Booking
   const handleCreate = async () => {
-    await fetch("http://localhost:8000/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newBooking),
-    });
-    setNewBooking({ user_id: "", therapist_id: "", session_date: "", booking_status: "Booked" });
-    fetchBookings();
+    try {
+      await fetch("http://localhost:8000/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newBooking,
+          user_id: Number(newBooking.user_id),
+          therapist_id: Number(newBooking.therapist_id),
+        }),
+      });
+
+      setNewBooking({ user_id: "", therapist_id: "", session_date: "", booking_status: "Booked" });
+      fetchBookings();
+    } catch (err) {
+      console.error("Error creating booking:", err);
+    }
   };
 
   // Delete a Booking
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:8000/api/bookings/${id}`, { method: "DELETE" });
-    fetchBookings();
+    try {
+      await fetch(`http://localhost:8000/api/bookings/${id}`, { method: "DELETE" });
+      fetchBookings();
+    } catch (err) {
+      console.error("Error deleting booking:", err);
+    }
   };
 
   return (
@@ -117,6 +146,10 @@ const Bookings = () => {
         </button>
       </div>
 
+      {/* Error & Loading Handling */}
+      {loading && <p className="text-center text-gray-500">Loading bookings...</p>}
+      {error && <p className="text-center text-red-600">{error}</p>}
+
       {/* Scrollable Table for Small Screens */}
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-300">
@@ -131,33 +164,41 @@ const Bookings = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="border-b border-gray-300 text-center">
-                <td className="p-2 border-r">{booking.id}</td>
-                <td className="p-2 border-r">{booking.user_id}</td>
-                <td className="p-2 border-r">{booking.therapist_id}</td>
-                <td className="p-2 border-r">{booking.session_date}</td>
-                <td
-                  className={`p-2 border-r ${
-                    booking.booking_status === "Completed"
-                      ? "text-green-600"
-                      : booking.booking_status === "Canceled"
-                      ? "text-red-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {booking.booking_status}
-                </td>
-                <td className="p-2">
-                  <button
-                    onClick={() => handleDelete(booking.id)}
-                    className="bg-red-600 text-white px-4 py-1"
+            {bookings.length > 0 ? (
+              bookings.map((booking) => (
+                <tr key={booking.id} className="border-b border-gray-300 text-center">
+                  <td className="p-2 border-r">{booking.id}</td>
+                  <td className="p-2 border-r">{booking.user_id}</td>
+                  <td className="p-2 border-r">{booking.therapist_id}</td>
+                  <td className="p-2 border-r">{booking.session_date}</td>
+                  <td
+                    className={`p-2 border-r ${
+                      booking.booking_status === "Completed"
+                        ? "text-green-600"
+                        : booking.booking_status === "Canceled"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                    }`}
                   >
-                    Delete
-                  </button>
+                    {booking.booking_status}
+                  </td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => handleDelete(booking.id)}
+                      className="bg-red-600 text-white px-4 py-1"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center text-gray-500 p-4">
+                  No bookings available.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

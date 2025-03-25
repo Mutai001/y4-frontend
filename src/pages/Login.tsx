@@ -16,35 +16,40 @@ const Login: React.FC = () => {
     setLoading(true);
   
     try {
-      const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/login", {
+      const API_URL = "http://localhost:8000/api/login";
+      
+      const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        // Don't use credentials unless your backend is properly configured
+        // credentials: "include", 
+        mode: "cors", // Explicitly set CORS mode
+        body: JSON.stringify({ 
+          email, 
+          password 
+        }),
       });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
-      }
-  
+      
+      // Rest of the login process
       const data = await response.json();
-      console.log("Login Response Data:", data);
-  
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+      
       if (!data.token || !data.user || !data.user.role) {
         throw new Error("Invalid response from server");
       }
   
-      // ✅ Store token, user, and role separately
+      // Store token, user, and role separately
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user)); // Correct way
-      localStorage.setItem("role", data.user.role); // Role should be stored independently
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", data.user.role);
   
-      console.log("User Info Stored:", JSON.parse(localStorage.getItem("user") || "{}"));
-      console.log("User Role Stored:", localStorage.getItem("role"));
-  
-      // ✅ Redirect based on user role
+      // Redirect based on user role
       const userRole = data.user.role;
       if (userRole === "therapist") {
         navigate(`/therapist-dashboard/${data.user.id}`);
@@ -55,15 +60,18 @@ const Login: React.FC = () => {
       }
     } catch (error) {
       console.error("Login Error:", error);
-      setError(error instanceof Error ? error.message : "An error occurred");
+      if (error instanceof TypeError && error.message.includes("NetworkError")) {
+        setError("Cannot connect to server. Please ensure the backend server is running and CORS is properly configured.");
+      } else {
+        setError(error instanceof Error ? error.message : "An error occurred");
+      }
     } finally {
       setLoading(false);
     }
   };
   
-
   return (
-    <div
+    <div 
       className="h-screen flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${loginBg})` }}
     >
@@ -91,7 +99,7 @@ const Login: React.FC = () => {
           />
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-800 transition"
+            className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}

@@ -133,7 +133,7 @@ const BookPayment: React.FC = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/api/initiate", {
+      const response = await fetch("http://localhost:8000/api/mpesa/initiate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -168,6 +168,7 @@ const BookPayment: React.FC = () => {
 
       <label className="block font-medium text-gray-700 mb-2">Select a Doctor</label>
       <select
+        title="Select a Doctor"
         value={selectedDoctor.id}
         onChange={(e) =>
           setSelectedDoctor(doctors.find((doc) => doc.id === Number(e.target.value)) || doctors[0])
@@ -183,6 +184,7 @@ const BookPayment: React.FC = () => {
 
       <label className="block font-medium text-gray-700 mb-2">Select Time Slot</label>
       <select
+        title="Select Time Slot"
         value={selectedTimeSlot}
         onChange={(e) => setSelectedTimeSlot(e.target.value)}
         className="w-full p-3 border rounded-md mb-5"

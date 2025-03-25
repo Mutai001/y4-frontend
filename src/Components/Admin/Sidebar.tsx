@@ -9,7 +9,7 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-4 text-green-600">
+      <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-4 text-green-600" title="Open Menu">
         <FaBars size={24} />
       </button>
 
@@ -17,7 +17,7 @@ const Sidebar = () => {
       <div className={`fixed md:static top-0 left-0 w-64 bg-green-600 text-white min-h-screen p-5 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} transition-transform md:translate-x-0`}>
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Admin Panel</h2>
-          <button onClick={() => setIsOpen(false)} className="md:hidden">
+          <button onClick={() => setIsOpen(false)} className="md:hidden" title="Close Menu">
             <FaTimes size={24} />
           </button>
         </div>

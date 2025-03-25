@@ -41,7 +41,7 @@ const Sessions = () => {
 
   // Fetch Therapists from Backend
   const fetchTherapists = async () => {
-    const response = await fetch("http://localhost:8000/api/therapists");
+    const response = await fetch("http://localhost:8000/api/session");
     const data = await response.json();
     setTherapists(data);
   };

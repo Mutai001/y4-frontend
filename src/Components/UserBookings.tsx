@@ -35,7 +35,7 @@ useEffect(() => {
 
   const fetchAppointments = async (userId: number) => {
     try {
-      const url = `https://ai-mentalhealthplatform.onrender.com/api/bookings?userId=${userId}`;
+      const url = `http://localhost:8000/api/bookings?userId=${userId}`;
       console.log("API Request URL:", url);
 
       const response = await fetch(url);
@@ -59,7 +59,7 @@ useEffect(() => {
     try {
       console.log("Deleting appointment with ID:", id);
 
-      const response = await fetch(`https://ai-mentalhealthplatform.onrender.com/api/bookings/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/bookings/${id}`, {
         method: "DELETE",
       });
 
