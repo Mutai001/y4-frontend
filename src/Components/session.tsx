@@ -79,8 +79,9 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCalendarAlt, FaSpinner } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { BeatLoader } from "react-spinners";
 
 // Doctor images
 import psychiatristImg from "../assets/images/Doc 1.webp";
@@ -166,7 +167,7 @@ const SessionBooking: React.FC = () => {
   };
 
   const handleBookingSubmit = async () => {
-    if (!selectedDoctor || !selectedDate || !selectedTimeSlot) {
+    if (!selectedDate || !selectedTimeSlot) {
       toast.error("Please select both date and time slot");
       return;
     }
@@ -174,13 +175,12 @@ const SessionBooking: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Combine date and time into ISO format
       const [startTime] = selectedTimeSlot.split(" - ");
       const sessionDateTime = new Date(`${selectedDate}T${startTime}:00`).toISOString();
 
       const bookingData = {
-        user_id: 1, // You'll want to get this from your auth system
-        therapist_id: selectedDoctor.id,
+        user_id: 1, // Replace with actual user ID from auth
+        therapist_id: selectedDoctor?.id,
         session_date: sessionDateTime,
         booking_status: "Booked"
       };
@@ -194,17 +194,17 @@ const SessionBooking: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Booking failed");
+        throw new Error("Booking failed. Please try again.");
       }
 
       const result = await response.json();
       
-      toast.success("Booking successful!");
+      toast.success("Booking created successfully!");
       navigate('/book-payment', {
         state: {
           doctor: selectedDoctor,
-          sessionFee: selectedDoctor.rate,
-          bookingId: result.id // Assuming your API returns the booking ID
+          sessionFee: selectedDoctor?.rate,
+          bookingId: result.id
         }
       });
     } catch (error) {
@@ -265,23 +265,28 @@ const SessionBooking: React.FC = () => {
               <button 
                 onClick={() => setShowBookingModal(false)}
                 className="text-gray-500 hover:text-gray-700"
+                aria-label="Close booking modal"
               >
                 ✕
               </button>
             </div>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="session-date" className="block text-sm font-medium text-gray-700 mb-2">
                 Select Date
               </label>
               <div className="relative">
                 <input
+                  id="session-date"
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
+                  aria-required="true"
+                  placeholder="Select a date"
+                  title="Select your session date"
                 />
               </div>
             </div>
@@ -294,12 +299,14 @@ const SessionBooking: React.FC = () => {
                 {timeSlots.map((slot) => (
                   <button
                     key={slot}
+                    type="button"
                     onClick={() => setSelectedTimeSlot(slot)}
                     className={`py-2 px-3 border rounded-lg transition-colors text-center ${
                       selectedTimeSlot === slot
                         ? 'bg-green-100 border-green-500 text-green-700'
                         : 'border-gray-200 hover:bg-green-50'
                     }`}
+                    aria-label={`Select time slot ${slot}`}
                   >
                     {slot}
                   </button>
@@ -315,12 +322,10 @@ const SessionBooking: React.FC = () => {
                   ? 'bg-green-400 cursor-not-allowed'
                   : 'bg-green-600 hover:bg-green-700'
               }`}
+              aria-busy={isSubmitting}
             >
               {isSubmitting ? (
-                <>
-                  <FaSpinner className="animate-spin mr-2" />
-                  Booking...
-                </>
+                <BeatLoader color="#ffffff" size={8} />
               ) : (
                 "Continue to Payment"
               )}
