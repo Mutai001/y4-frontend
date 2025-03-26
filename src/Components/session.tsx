@@ -79,7 +79,8 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaSpinner } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 // Doctor images
 import psychiatristImg from "../assets/images/Doc 1.webp";
@@ -153,11 +154,74 @@ const SessionBooking: React.FC = () => {
   const navigate = useNavigate();
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBookSession = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
     setShowBookingModal(true);
+    setSelectedDate("");
+    setSelectedTimeSlot("");
   };
+
+  const handleBookingSubmit = async () => {
+    if (!selectedDoctor || !selectedDate || !selectedTimeSlot) {
+      toast.error("Please select both date and time slot");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Combine date and time into ISO format
+      const [startTime] = selectedTimeSlot.split(" - ");
+      const sessionDateTime = new Date(`${selectedDate}T${startTime}:00`).toISOString();
+
+      const bookingData = {
+        user_id: 1, // You'll want to get this from your auth system
+        therapist_id: selectedDoctor.id,
+        session_date: sessionDateTime,
+        booking_status: "Booked"
+      };
+
+      const response = await fetch("http://localhost:8000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Booking failed");
+      }
+
+      const result = await response.json();
+      
+      toast.success("Booking successful!");
+      navigate('/book-payment', {
+        state: {
+          doctor: selectedDoctor,
+          sessionFee: selectedDoctor.rate,
+          bookingId: result.id // Assuming your API returns the booking ID
+        }
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Booking failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Generate time slots (2-hour slots from 9AM to 5PM)
+  const timeSlots = [];
+  for (let hour = 9; hour <= 17; hour += 2) {
+    const endHour = hour + 2;
+    const startTime = `${hour.toString().padStart(2, '0')}:00`;
+    const endTime = `${endHour.toString().padStart(2, '0')}:00`;
+    timeSlots.push(`${startTime} - ${endTime}`);
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-5">
@@ -214,8 +278,10 @@ const SessionBooking: React.FC = () => {
                 <input
                   type="date"
                   min={new Date().toISOString().split('T')[0]}
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  placeholder="Select a date"
+                  required
                 />
               </div>
             </div>
@@ -225,29 +291,39 @@ const SessionBooking: React.FC = () => {
                 Select Time Slot (2-hour sessions)
               </label>
               <div className="grid grid-cols-2 gap-2">
-                {['09:00', '11:00', '14:00', '16:00'].map((time) => (
+                {timeSlots.map((slot) => (
                   <button
-                    key={time}
-                    className="py-2 px-3 border border-green-200 rounded-lg hover:bg-green-50 transition-colors text-center"
+                    key={slot}
+                    onClick={() => setSelectedTimeSlot(slot)}
+                    className={`py-2 px-3 border rounded-lg transition-colors text-center ${
+                      selectedTimeSlot === slot
+                        ? 'bg-green-100 border-green-500 text-green-700'
+                        : 'border-gray-200 hover:bg-green-50'
+                    }`}
                   >
-                    {time} - {parseInt(time.split(':')[0]) + 2}:00
+                    {slot}
                   </button>
                 ))}
               </div>
             </div>
 
             <button
-              onClick={() => {
-                navigate('/book-payment', { 
-                  state: { 
-                    doctor: selectedDoctor,
-                    sessionFee: selectedDoctor.rate
-                  } 
-                });
-              }}
-              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              onClick={handleBookingSubmit}
+              disabled={isSubmitting || !selectedDate || !selectedTimeSlot}
+              className={`w-full py-3 text-white rounded-lg transition-colors flex items-center justify-center ${
+                isSubmitting || !selectedDate || !selectedTimeSlot
+                  ? 'bg-green-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
             >
-              Continue to Payment
+              {isSubmitting ? (
+                <>
+                  <FaSpinner className="animate-spin mr-2" />
+                  Booking...
+                </>
+              ) : (
+                "Continue to Payment"
+              )}
             </button>
           </div>
         </div>
