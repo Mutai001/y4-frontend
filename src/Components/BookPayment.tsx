@@ -216,82 +216,134 @@
 
 // export default BookPayment;
 
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { FaMobileAlt, FaLock, FaCalendarAlt, FaClock, FaUserMd } from "react-icons/fa";
 
-// Removed unused Doctor interface
+
+import React, { useState } from "react";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { 
+  FaMobileAlt, 
+  FaLock, 
+  FaCalendarAlt, 
+  FaClock, 
+  FaUserMd 
+} from "react-icons/fa";
 
 const BookPayment: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Ensure location.state is destructured safely
-  const { doctor, sessionFee } = location.state || { doctor: null, sessionFee: 0 };
-
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
+  const { doctor = null, sessionFee = 0 } = location.state || {};
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [paymentError, setPaymentError] = useState<string>("");
+  const [phoneFormat, setPhoneFormat] = useState<"254" | "07">("07");
 
   if (!doctor) {
-    navigate('/'); // Redirect to home or an appropriate page if doctor data is missing
+    navigate('/');
     return null;
   }
 
-  // Generate time slots (9AM-5PM with 2-hour slots)
-  const timeSlots = [];
-  for (let hour = 9; hour <= 17; hour += 2) {
-    timeSlots.push(`${hour}:00 - ${hour + 2}:00`);
-  }
+  // Generate time slots
+  const timeSlots = [
+    "9:00 - 11:00",
+    "11:00 - 13:00", 
+    "13:00 - 15:00", 
+    "15:00 - 17:00"
+  ];
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, '');
+    
+    // Dynamically switch format based on input
+    if (value.startsWith('254')) {
+      setPhoneFormat("254");
+      // Limit to 12 digits for 254 format
+      setPhoneNumber(value.slice(0, 12));
+    } else if (value.startsWith('0')) {
+      setPhoneFormat("07");
+      // Limit to 10 digits for 07 format
+      setPhoneNumber(value.slice(0, 10));
+    } else {
+      // If input doesn't start with 254 or 0, assume 07 format and prepend 0
+      setPhoneFormat("07");
+      setPhoneNumber(value.slice(0, 10));
+    }
+  };
 
   const handlePayment = async () => {
+    setPaymentError("");
+
     if (!phoneNumber.trim() || !selectedDate || !selectedTime) {
       setPaymentError("Please fill all fields");
       return;
     }
 
-    if (!phoneNumber.match(/^07[0-9]{8}$/)) {
-      setPaymentError("Please enter a valid M-Pesa number (07XXXXXXXX)");
+    // Validate based on current format
+    if (phoneFormat === "254" && !/^254[17]\d{8}$/.test(phoneNumber)) {
+      setPaymentError("Please enter a valid 254 format number (254XXXXXXXXX)");
+      return;
+    }
+
+    if (phoneFormat === "07" && !/^(07|01)\d{8}$/.test(phoneNumber)) {
+      setPaymentError("Please enter a valid Kenyan number (07XXXXXXXX or 01XXXXXXXX)");
       return;
     }
 
     setIsProcessing(true);
-    setPaymentError("");
 
     try {
-      // Simulate API call to M-Pesa
+      // Format phone number to 254 format
+      const formattedPhone = phoneFormat === "07" 
+        ? `254${phoneNumber.substring(1)}` 
+        : phoneNumber;
+
+      // Prepare payment data exactly as per API specification
       const paymentData = {
-        phoneNumber: `254${phoneNumber.substring(1)}`,
+        phoneNumber: formattedPhone,
         amount: sessionFee,
-        reference: `THERAPY-${doctor.name.split(' ')[1]}`,
-        date: selectedDate,
-        time: selectedTime,
-        doctorId: doctor.id
+        referenceCode: `THERAPY-${doctor.name.split(' ')[1] || 'SESSION'}`,
+        description: `Therapy session with Dr. ${doctor.name} on ${selectedDate} at ${selectedTime}`
       };
 
-      // In a real app, you would call your backend API here
-      console.log("Initiating payment:", paymentData);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // On successful payment
-      navigate('/booking-confirmation', {
+      // Send STK push request
+      const response = await axios.post('http://localhost:8000/api/mpesa/initiate', paymentData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Navigate to confirmation or handle response
+      navigate('/confirmation', {
         state: {
           doctor,
           amount: sessionFee,
           date: selectedDate,
           time: selectedTime,
-          transactionId: `MPESA-${Date.now()}`
+          transactionId: response.data.CheckoutRequestID || 'N/A'
         }
       });
     } catch (error) {
-      setPaymentError("Payment failed. Please try again.");
+      // Handle network or API errors
+      if (axios.isAxiosError(error)) {
+        setPaymentError(
+          error.response?.data?.message || 
+          error.message || 
+          "Payment failed. Please try again."
+        );
+      } else {
+        setPaymentError("An unexpected error occurred");
+      }
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const getDisplayPhone = () => {
+    if (!phoneNumber) return "";
+    return phoneFormat === "254" ? phoneNumber : `254${phoneNumber.substring(1)}`;
   };
 
   return (
@@ -325,11 +377,11 @@ const BookPayment: React.FC = () => {
             <input
               type="date"
               min={new Date().toISOString().split('T')[0]}
+              value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               required
               title="Select a session date"
-              placeholder="YYYY-MM-DD"
             />
           </div>
         </div>
@@ -351,23 +403,36 @@ const BookPayment: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">M-Pesa Number</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            M-Pesa Number
+            <span className="ml-2 text-xs text-gray-500">
+              (Currently using {phoneFormat} format)
+            </span>
+          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500">+254</span>
+              <span className="text-gray-500">+</span>
             </div>
             <input
               type="tel"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="7XXXXXXXX"
-              className="w-full pl-16 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              maxLength={9}
+              onChange={handlePhoneChange}
+              placeholder={phoneFormat === "254" ? "254XXXXXXXXX" : "07XXXXXXXX"}
+              className="w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              maxLength={phoneFormat === "254" ? 12 : 10}
               required
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
               <FaMobileAlt className="text-gray-400" />
             </div>
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {phoneNumber && (
+              <span>Will process as: +{getDisplayPhone()}</span>
+            )}
+            {!phoneNumber && (
+              <span>Enter number in 254XXXXXXXXX or 07XXXXXXXX format</span>
+            )}
           </div>
         </div>
 
