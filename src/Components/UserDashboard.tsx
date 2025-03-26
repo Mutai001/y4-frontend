@@ -20,7 +20,7 @@ const UserDashboard = () => {
   const doctors = [
     {
       id: 1,
-      name: "Dr. Sarah Johnson",
+      name: "Dr. Celestina Kweyu",
       specialty: "Cardiologist",
       availability: "Mon, Wed, Fri",
       image: Doctor1,
@@ -28,7 +28,7 @@ const UserDashboard = () => {
     },
     {
       id: 2,
-      name: "Dr. Michael Chen",
+      name: "Dr.Cyrus Kimutai",
       specialty: "Neurologist",
       availability: "Tue, Thu, Sat",
       image: Doctor2,
@@ -36,7 +36,7 @@ const UserDashboard = () => {
     },
     {
       id: 3,
-      name: "Dr. Emily Wilson",
+      name: "Dr. Riyan Moraa",
       specialty: "Pediatrician",
       availability: "Mon-Fri",
       image: Doctor3,
@@ -247,7 +247,7 @@ const UserDashboard = () => {
           <div className="flex items-center">
             <img src={Doctor2} alt="Doctor" className="w-16 h-16 rounded-full object-cover mr-4" />
             <div className="flex-1">
-              <h3 className="font-semibold">Dr. Michael Chen</h3>
+              <h3 className="font-semibold">Dr. Mark Okwena</h3>
               <p className="text-gray-600">Neurology Consultation</p>
               <p className="text-sm text-gray-500">Tomorrow, 14 Mar 2025 at 9:00 AM</p>
             </div>
