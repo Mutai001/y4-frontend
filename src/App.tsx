@@ -38,6 +38,8 @@ import PatientOverview from "./Components/Therapists/PatientsOverview";
 import UserMessage from "./Components/UserMessage";
 import Profile from "./Components/Therapists/Profile";
 import Settings from "./Components/Therapists/Settings";
+import DoctorsList2 from "./Components/DoctorsList2";
+import Specialists from "./Components/Specialists";
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 import "./index.css";
 
@@ -82,6 +84,8 @@ function App() {
         <Route path="/user-message" element={<UserMessage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/sessions" element={<DoctorsList2 />} />
+        <Route path="/specialists" element={<Specialists />} />
         <Route
            path="/checkout"
            element={<CheckoutPage amount={100} />} // Pass an amount (e.g., 100)

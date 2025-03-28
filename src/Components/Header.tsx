@@ -23,7 +23,7 @@ const Header: React.FC = () => {
         <ul className="flex space-x-6">
           <li>
             <Link
-              to="/doctor"
+              to="/specialists"
               className="hover:text-green-300 transition-colors duration-300"
             >
               Doctors

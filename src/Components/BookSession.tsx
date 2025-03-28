@@ -52,7 +52,7 @@ const BookSession: React.FC = () => {
     const fetchTherapists = async () => {
       try {
         setIsFetching(true);
-        const response = await fetch("https://ai-mentalhealthplatform.onrender.com/api/therapists", {
+        const response = await fetch("http://localhost:8000/api/therapists", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
